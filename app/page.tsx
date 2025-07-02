@@ -1,17 +1,20 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import css from "./page.module.css";
 
 import {
   SidebarMenuButton,
+  ErrorComponent,
   LanguageDetectorComponent,
   SummerizerComponent,
   TranslatorComponent,
 } from "./Components/index";
+import { error } from "console";
 
 export default function Home() {
   const [activeComponent, setActiveComponent] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const componentLoader = () => {
     switch (activeComponent) {
@@ -29,6 +32,27 @@ export default function Home() {
   const changeComponentHandler = (componentToLoad: string) => {
     setActiveComponent(componentToLoad);
   };
+
+  useEffect(() => {
+    try {
+      if (navigator) {
+        let ver = "";
+        navigator.userAgent.split(" ")?.map((item) => {
+          if (item?.indexOf("Chrome") == 0) {
+            ver = item?.split("/")[1];
+          }
+        });
+
+        if (+ver?.split(".")?.[0] < 138) {
+          setErrorMessage(
+            "BrowserMind AI requires Chrome broswer and version 138 or higher. Please update your browser."
+          );
+        }
+      }
+    } catch (err) {
+      //
+    }
+  }, []);
 
   return (
     <div
@@ -74,7 +98,21 @@ export default function Home() {
             changeComponent={changeComponentHandler}
           />
         </section>
-        <section style={{ padding: "10px" }}>{componentLoader()}</section>
+        <section
+          style={{
+            padding: "10px",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          {errorMessage ? (
+            <ErrorComponent errorMessage={errorMessage} />
+          ) : (
+            componentLoader()
+          )}
+        </section>
       </main>
       <footer
         style={{
