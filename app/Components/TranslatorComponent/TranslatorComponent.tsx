@@ -3,15 +3,18 @@ import { stat } from "fs";
 import {
   InputEvent,
   InputEventHandler,
+  use,
   useEffect,
   useRef,
   useState,
 } from "react";
 
 const TranslatorComponent = () => {
+  const [loader, setLoader] = useState(false);
   const [inputText, setInputText] = useState("");
   const [outputText, setOutputText] = useState("");
   const [status, setStatus] = useState("checking...");
+  const [downloadProgress, setDownloadProgress] = useState(0);
   const [languages, setLanguages] = useState({
     source: "en",
     target: "te",
@@ -19,6 +22,7 @@ const TranslatorComponent = () => {
 
   useEffect(() => {
     (async () => {
+      setDownloadProgress(0);
       //@ts-expect-error Translator is a global object provided by the chrome browser
       const status = await Translator?.availability({
         sourceLanguage: languages?.source || "en",
@@ -27,9 +31,11 @@ const TranslatorComponent = () => {
 
       switch (status) {
         case "available":
+          setStatus("✅");
+          break;
         case "downloadable":
         case "downloading":
-          setStatus("✅");
+          setStatus("⬇️");
           break;
         case "unavailable":
         default:
@@ -39,11 +45,11 @@ const TranslatorComponent = () => {
   }, [languages]);
 
   const translateHandler = async () => {
-    console.log("clicked", inputText, languages);
     if (!inputText) {
       alert("Please enter text to translate.");
       return;
     }
+    setLoader(true);
 
     if (languages?.source && languages?.target) {
       try {
@@ -51,24 +57,32 @@ const TranslatorComponent = () => {
         const translator = await Translator.create({
           sourceLanguage: languages?.source || "en",
           targetLanguage: languages?.target || "te",
+          monitor(monitor: any) {
+            monitor.addEventListener("downloadprogress", (e: any) => {
+              setDownloadProgress(
+                parseInt(((e?.loaded / e?.total) * 100)?.toFixed(2))
+              );
+            });
+          },
         });
 
-        console.log("translator", translator);
-
         const translatedText = await translator.translate(inputText);
-        console.log("translatedText", translatedText);
         setOutputText(translatedText);
+        translator?.destroy();
       } catch (err) {
         //
       }
     }
+
+    setLoader(false);
   };
 
   return (
     <div
       style={{
         width: "60%",
-        height: "70%",
+        minHeight: "70%",
+        maxHeight: "auto",
         padding: "10px",
         border: "5px solid crimson",
         borderRadius: "10px",
@@ -79,8 +93,16 @@ const TranslatorComponent = () => {
         gap: "10px",
       }}
     >
-      <div style={{ margin: "5px 0", fontSize: "12px" }}>
-        Translator Status: {status}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          margin: "5px 0",
+          fontSize: "12px",
+        }}
+      >
+        <p>Translator Status: {status}</p>
+        {downloadProgress > 0 ? `Download Progress: ${downloadProgress}` : ""}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
         <label style={{ fontSize: "14px" }}>Enter text to translate:</label>
@@ -105,42 +127,155 @@ const TranslatorComponent = () => {
             alignSelf: "flex-end",
             cursor: "pointer",
           }}
-          disabled={!inputText}
+          disabled={!inputText || loader}
           onClick={translateHandler}
         >
-          Translate
+          {loader ? "Translating..." : "Translate"}
         </button>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        <label style={{ fontSize: "14px" }}>Source Language:</label>
-        <select
-          value={inputText}
-          onSelect={(e: React.ChangeEvent<HTMLSelectElement>) =>
-            setInputText(e.target.value)
-          }
-          style={{
-            width: "100%",
-            padding: "10px",
-            borderRadius: "5px",
-            border: "1px solid #ccc",
-            fontSize: "14px",
-          }}
-        ></select>
-        <label style={{ fontSize: "14px" }}>Target Language:</label>
-        <input
-          type="text"
-          value={inputText}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setInputText(e.target.value)
-          }
-          style={{
-            width: "100%",
-            padding: "10px",
-            borderRadius: "5px",
-            border: "1px solid #ccc",
-            fontSize: "14px",
-          }}
-        />
+      <div style={{ display: "flex", gap: "10px" }}>
+        <span>
+          <label style={{ fontSize: "14px" }}>Source Language:</label>
+          <select
+            value={languages.source}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+              setLanguages((prev) => {
+                return {
+                  source: e.target.value,
+                  target: prev.target,
+                };
+              });
+            }}
+            style={{
+              width: "100%",
+              padding: "10px",
+              borderRadius: "5px",
+              border: "1px solid #ccc",
+              fontSize: "14px",
+            }}
+          >
+            <option value="en">English</option>
+            <option value="te">Telugu</option>
+            <option value="hi">Hindi</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+            <option value="de">German</option>
+            <option value="zh">Chinese</option>
+            <option value="ar">Arabic</option>
+            <option value="bn">Bengali</option>
+            <option value="ru">Russian</option>
+            <option value="pt">Portuguese</option>
+            <option value="ja">Japanese</option>
+            <option value="ko">Korean</option>
+            <option value="it">Italian</option>
+            <option value="nl">Dutch</option>
+            <option value="sv">Swedish</option>
+            <option value="pl">Polish</option>
+            <option value="tr">Turkish</option>
+            <option value="vi">Vietnamese</option>
+            <option value="th">Thai</option>
+            <option value="id">Indonesian</option>
+            <option value="ms">Malay</option>
+            <option value="fi">Finnish</option>
+            <option value="no">Norwegian</option>
+            <option value="da">Danish</option>
+            <option value="el">Greek</option>
+            <option value="he">Hebrew</option>
+            <option value="fa">Persian</option>
+            <option value="ur">Urdu</option>
+            <option value="pa">Punjabi</option>
+            <option value="gu">Gujarati</option>
+            <option value="kn">Kannada</option>
+            <option value="ml">Malayalam</option>
+            <option value="ta">Tamil</option>
+            <option value="mr">Marathi</option>
+            <option value="am">Amharic</option>
+            <option value="bg">Bulgarian</option>
+            <option value="cs">Czech</option>
+            <option value="et">Estonian</option>
+            <option value="hu">Hungarian</option>
+            <option value="is">Icelandic</option>
+            <option value="lv">Latvian</option>
+            <option value="lt">Lithuanian</option>
+            <option value="ro">Romanian</option>
+            <option value="sk">Slovak</option>
+            <option value="sl">Slovenian</option>
+            <option value="sq">Albanian</option>
+            <option value="sr">Serbian</option>
+            <option value="uk">Ukrainian</option>
+          </select>
+        </span>
+        <span>
+          <label style={{ fontSize: "14px" }}>Target Language:</label>
+          <select
+            value={languages.target}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+              setLanguages((prev) => {
+                return {
+                  source: prev.source,
+                  target: e.target.value,
+                };
+              });
+            }}
+            style={{
+              width: "100%",
+              padding: "10px",
+              borderRadius: "5px",
+              border: "1px solid #ccc",
+              fontSize: "14px",
+            }}
+          >
+            <option value="en">English</option>
+            <option value="te">Telugu</option>
+            <option value="hi">Hindi</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+            <option value="de">German</option>
+            <option value="zh">Chinese</option>
+            <option value="ar">Arabic</option>
+            <option value="bn">Bengali</option>
+            <option value="ru">Russian</option>
+            <option value="pt">Portuguese</option>
+            <option value="ja">Japanese</option>
+            <option value="ko">Korean</option>
+            <option value="it">Italian</option>
+            <option value="nl">Dutch</option>
+            <option value="sv">Swedish</option>
+            <option value="pl">Polish</option>
+            <option value="tr">Turkish</option>
+            <option value="vi">Vietnamese</option>
+            <option value="th">Thai</option>
+            <option value="id">Indonesian</option>
+            <option value="ms">Malay</option>
+            <option value="fi">Finnish</option>
+            <option value="no">Norwegian</option>
+            <option value="da">Danish</option>
+            <option value="el">Greek</option>
+            <option value="he">Hebrew</option>
+            <option value="fa">Persian</option>
+            <option value="ur">Urdu</option>
+            <option value="pa">Punjabi</option>
+            <option value="gu">Gujarati</option>
+            <option value="kn">Kannada</option>
+            <option value="ml">Malayalam</option>
+            <option value="ta">Tamil</option>
+            <option value="mr">Marathi</option>
+            <option value="am">Amharic</option>
+            <option value="bg">Bulgarian</option>
+            <option value="cs">Czech</option>
+            <option value="et">Estonian</option>
+            <option value="hu">Hungarian</option>
+            <option value="is">Icelandic</option>
+            <option value="lv">Latvian</option>
+            <option value="lt">Lithuanian</option>
+            <option value="ro">Romanian</option>
+            <option value="sk">Slovak</option>
+            <option value="sl">Slovenian</option>
+            <option value="sq">Albanian</option>
+            <option value="sr">Serbian</option>
+            <option value="uk">Ukrainian</option>
+          </select>
+        </span>
       </div>
       <div style={{ color: "green" }}>
         <p style={{ marginBottom: "3px" }}>AI Output:</p>{" "}
