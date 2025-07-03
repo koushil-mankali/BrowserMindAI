@@ -10,7 +10,6 @@ import {
   SummerizerComponent,
   TranslatorComponent,
 } from "./Components/index";
-import { error } from "console";
 
 export default function Home() {
   const [activeComponent, setActiveComponent] = useState<string>("");
