@@ -38,7 +38,7 @@ const TranslatorComponent = () => {
             setStatus("❌");
         }
       })();
-    } catch (err) {
+    } catch (err: any) {
       setErrorMessage(err?.message);
     }
   }, [languages]);
@@ -68,7 +68,7 @@ const TranslatorComponent = () => {
         const translatedText = await translator.translate(inputText);
         setOutputText(translatedText);
         translator?.destroy();
-      } catch (err) {
+      } catch (err: any) {
         setErrorMessage(err?.message);
       }
     }
