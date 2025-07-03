@@ -102,7 +102,7 @@ const TranslatorComponent = () => {
           fontSize: "12px",
         }}
       >
-        <p>Translator Status: {status}</p>
+        <p>Translator AI Status: {status}</p>
         {downloadProgress > 0 ? `Download Progress: ${downloadProgress}` : ""}
       </div>
       {errorMessage ?? <ErrorComponent errorMessage={errorMessage} />}

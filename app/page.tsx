@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 import css from "./page.module.css";
 
@@ -77,7 +78,12 @@ export default function Home() {
           boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <nav>BrowserMind AI</nav>
+        <nav
+          onClick={() => changeComponentHandler("/")}
+          style={{ cursor: "pointer" }}
+        >
+          BrowserMind AI
+        </nav>
       </header>
       <main style={{ height: "100%", display: "flex" }}>
         <section className={css.sidebar}>
@@ -125,7 +131,19 @@ export default function Home() {
           fontWeight: "bold",
         }}
       >
-        <p>BrowserMind AI</p>
+        <p
+          onClick={() => changeComponentHandler("/")}
+          style={{ cursor: "pointer" }}
+        >
+          BrowserMind AI by{" "}
+          <Link
+            style={{ fontSize: "20px" }}
+            target="_blank"
+            href="https://koushilmankali.in"
+          >
+            Koushil Mankali
+          </Link>
+        </p>
       </footer>
     </div>
   );

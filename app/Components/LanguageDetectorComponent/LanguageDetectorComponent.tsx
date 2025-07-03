@@ -157,7 +157,7 @@ const LanguageDetectorComponent = () => {
           fontSize: "12px",
         }}
       >
-        <p>LanguageDetector Status: {status}</p>
+        <p>LanguageDetector AI Status: {status}</p>
         {downloadProgress > 0 ? `Download Progress: ${downloadProgress}` : ""}
       </div>
       {errorMessage ?? <ErrorComponent errorMessage={errorMessage} />}
