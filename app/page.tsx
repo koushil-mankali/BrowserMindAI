@@ -25,7 +25,13 @@ export default function Home() {
       case "summarizer":
         return <SummarizerComponent />;
       default:
-        return <div>Select a component from the sidebar to load.</div>;
+        return (
+          <pre>
+            BrowserMind AI is developed using Broswer provided AI tools without
+            making call to external AI Tools.
+            <div>Select a component from the sidebar to load.</div>
+          </pre>
+        );
     }
   };
 
