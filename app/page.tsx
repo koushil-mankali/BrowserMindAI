@@ -7,7 +7,7 @@ import {
   SidebarMenuButton,
   ErrorComponent,
   LanguageDetectorComponent,
-  SummerizerComponent,
+  SummarizerComponent,
   TranslatorComponent,
 } from "./Components/index";
 
@@ -21,8 +21,8 @@ export default function Home() {
         return <TranslatorComponent />;
       case "languagedetector":
         return <LanguageDetectorComponent />;
-      case "summerizer":
-        return <SummerizerComponent />;
+      case "summarizer":
+        return <SummarizerComponent />;
       default:
         return <div>Select a component from the sidebar to load.</div>;
     }
@@ -92,8 +92,8 @@ export default function Home() {
             changeComponent={changeComponentHandler}
           />
           <SidebarMenuButton
-            content="Summerizer"
-            anchor="summerizer"
+            content="Summarizer"
+            anchor="summarizer"
             changeComponent={changeComponentHandler}
           />
         </section>
