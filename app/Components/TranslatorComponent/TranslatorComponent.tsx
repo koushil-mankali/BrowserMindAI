@@ -1,13 +1,7 @@
 "use client";
-import { stat } from "fs";
-import {
-  InputEvent,
-  InputEventHandler,
-  use,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
+
+import { ErrorComponent } from "../index";
 
 const TranslatorComponent = () => {
   const [loader, setLoader] = useState(false);
@@ -19,29 +13,34 @@ const TranslatorComponent = () => {
     source: "en",
     target: "te",
   });
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    (async () => {
-      setDownloadProgress(0);
-      //@ts-expect-error Translator is a global object provided by the chrome browser
-      const status = await Translator?.availability({
-        sourceLanguage: languages?.source || "en",
-        targetLanguage: languages?.target || "en",
-      });
+    try {
+      (async () => {
+        setDownloadProgress(0);
+        //@ts-expect-error Translator is a global object provided by the chrome browser
+        const status = await Translator?.availability({
+          sourceLanguage: languages?.source || "en",
+          targetLanguage: languages?.target || "en",
+        });
 
-      switch (status) {
-        case "available":
-          setStatus("✅");
-          break;
-        case "downloadable":
-        case "downloading":
-          setStatus("⬇️");
-          break;
-        case "unavailable":
-        default:
-          setStatus("❌");
-      }
-    })();
+        switch (status) {
+          case "available":
+            setStatus("✅");
+            break;
+          case "downloadable":
+          case "downloading":
+            setStatus("⬇️");
+            break;
+          case "unavailable":
+          default:
+            setStatus("❌");
+        }
+      })();
+    } catch (err) {
+      setErrorMessage(err?.message);
+    }
   }, [languages]);
 
   const translateHandler = async () => {
@@ -70,7 +69,7 @@ const TranslatorComponent = () => {
         setOutputText(translatedText);
         translator?.destroy();
       } catch (err) {
-        //
+        setErrorMessage(err?.message);
       }
     }
 
@@ -104,6 +103,8 @@ const TranslatorComponent = () => {
         <p>Translator Status: {status}</p>
         {downloadProgress > 0 ? `Download Progress: ${downloadProgress}` : ""}
       </div>
+      {errorMessage ?? <ErrorComponent errorMessage={errorMessage} />}
+
       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
         <label style={{ fontSize: "14px" }}>Enter text to translate:</label>
         <input
