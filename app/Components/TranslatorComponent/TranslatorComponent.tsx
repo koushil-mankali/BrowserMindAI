@@ -39,6 +39,7 @@ const TranslatorComponent = () => {
         }
       })();
     } catch (err: any) {
+      setStatus("❌");
       setErrorMessage(err?.message);
     }
   }, [languages]);
@@ -69,6 +70,7 @@ const TranslatorComponent = () => {
         setOutputText(translatedText);
         translator?.destroy();
       } catch (err: any) {
+        setStatus("❌");
         setErrorMessage(err?.message);
       }
     }
